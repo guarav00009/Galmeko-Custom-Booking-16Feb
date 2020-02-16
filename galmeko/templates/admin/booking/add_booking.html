@@ -1,0 +1,368 @@
+{% extends "admin/base_site.html" %}
+<style>
+    .input_fields_wrap .remove_field {
+        font-size: 0.80em;
+    }
+
+    a {
+        color: #428bca;
+        text-decoration: none;
+    }
+
+    a {
+        background: transparent;
+    }
+
+    .btn,
+    #submit {
+        display: inline-block;
+        margin-bottom: 0;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        padding: 5px 15px;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        font-size: 0.80em;
+        text-transform: uppercase;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.22);
+        border-bottom: 3px solid #000;
+    }
+
+    .btn-info {
+        color: #ffffff;
+        background-color: #5bc0de;
+        border-color: #46b8da;
+    }
+
+    .input_fields_wrap input[type=text] {
+        padding: 0px 5px 0px 5px;
+        margin: 2px 3px 3px 0;
+        font-size: 0.90em;
+        line-height: 0.90em;
+        font-weight: normal;
+    }
+
+</style>
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+
+<h3>Add Booking</h3>
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/adminlte.css' %}" />
+<script type="text/javascript" src="{% static 'admin/js/bootstrapValidator.min.js' %}"></script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjRK7OqmoYM-KJki3hji4vZo6SiMl_nWA&region=in&libraries=places&callback=initAutocomplete"
+    async defer></script>
+<script src="{% static 'booking/js/booking.js' %}"></script>
+<form action="/admin/add_booking/" method="POST" id="addBooking">
+    {%csrf_token%}
+    <input type="hidden" name="origin_geocode" id="origin_geocode" value="">
+    <input type="hidden" name="destination_geocode" id="destination_geocode" value="">
+    <fieldset class="module aligned">
+        <h2>Booking</h2>
+        <div class="col-md-12" style="padding: 10px;">
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="id_booking_type">Booking Type:</label>
+                </div>
+                <div class="col-md-4">
+                    <select name="booking_type" id="booking_type" class="form-control">
+                        <option value="">Please Select User</option>
+                        <option value="1">Hospital</option>
+                        <option value="3">User</option>
+                    </select>
+                </div>
+                <div class="col-md-6 user_div">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="id_booking_type">User Type:</label>
+                        </div>
+                        <div class="col-md-9">
+                            <select name="id_user" id="id_user" class="form-control">
+                                <option value="" selected="">---------</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Vehicle</h2>
+        <div class="col-md-12" style="padding: 10px;">
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="category">Category:</label>
+                </div>
+                <div class="col-md-4 category">
+                    <select id="category" name="category" class="form-control">
+                        <option value="" selected="">Please Select Category</option>
+                        {% if category %}
+                        {% for category in category %}
+                        <option value="{{category.id}}">{{category.category_name}}</option>
+                        {%endfor%}
+                        {%endif%}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="fare">Fare:</label>
+                </div>
+                <div class="col-md-4 fare">
+                    <input type="number" class="form-control" name="fare" step="0.01" id="fare">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-2">
+                    <label for="trip">Round Trip:</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="checkbox" id="trip" name="trip" value="0">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Trip Details</h2>
+        <div class="col-md-12" style="padding: 10px;">
+            <h6>Booking From:</h6>
+            <div class="row">
+                <div class="col-md-1">
+                    <label for="id_name">Name:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="origin_name" id="name">
+                </div>
+                <div class="col-md-1">
+                    <label for="id_name">Phone:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="origin_phone" id="phone">
+                </div>
+                <div class="col-md-1">
+                    <label for="id_name">Address:</label>
+                </div>
+                <div class="col-md-5 origin_address">
+                    <input type="text" class="form-control" name="origin_address" id="origin_address">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" style="padding: 10px;">
+            <h6>Booking To:</h6>
+            <div class="row">
+                <div class="col-md-1">
+                    <label for="id_name">Name:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="destination_name" id="destination_name">
+                </div>
+                <div class="col-md-1">
+                    <label for="id_name">Phone:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="destination_phone" id="destination_phone">
+                </div>
+                <div class="col-md-1">
+                    <label for="id_name">Address:</label>
+                </div>
+                <div class="col-md-5 destination_address">
+                    <input type="text" class="form-control" name="destination_address" id="destination_address">
+                </div>
+            </div>
+        </div>
+        <button href="javascript:void(0);" style="float: right;" class="btn btn-info btn-sm show_stop_form">Add
+            Stop</button>
+    </fieldset>
+
+    <fieldset class="module aligned stops">
+        <h2>Stop</h2>
+        <div class="col-md-12 stops" style="padding: 10px;">
+            <div class="row">
+                <div class="col-md-1">
+                    <label for="id_name">Name:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="stop_name" id="stop_name">
+                </div>
+                <div class="col-md-1">
+                    <label for="id_name">Phone:</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="stop_phone" id="stop_phone">
+                </div>
+                <div class="col-md-1">
+                    <label for="id_name">Address:</label>
+                </div>
+                <div class="col-md-5 origin_address">
+                    <input type="text" class="form-control" name="stop_address" id="stop_address">
+                </div>
+            </div>
+        </div>
+        <div class="input_fields_wrap"></div>
+        <a href="javascript:void(0);" class="add-more btn btn-info bt-sm">Add More</a>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Booking Feature</h2>
+        <div class="col-md-12" style="padding: 10px;">
+            <div class="row">
+                <div class="col-md-1">
+                    <label for="feature">Features:</label>
+                </div>
+                <div class="col-md-10">
+                    {% for feature in features %}
+                    <input type="checkbox" name="features" value={{feature.id}}> {{feature.name}}</option>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+        <div class="row" style="padding: 10px;">
+            <div class="col-md-1">
+                <label for="notes">Notes:</label>
+            </div>
+            <div class="col-md-10">
+                <textarea cols="50" rows="1" name="notes" id="notes"></textarea>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <div style="padding: 10px;">
+            <input type="submit" value="Submit" class="default" name="Save">
+            <a href="javascript:void(0);" class="btn btn-info">Back</a>
+        </div>
+    </fieldset>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#trip").on('click', function () {
+            if ($("#trip").val() == 0) {
+                $("#trip").val(1)
+            } else {
+                $("#trip").val(0)
+            }
+        });
+        var max_fields = 10; //maximum input boxes allowed
+        var wrapper = $(".input_fields_wrap"); //Fields wrapper
+        var add_button = $(".add-more"); //Add button ID
+
+        var x = 1; //initlal text box count
+        $(add_button).on("click", function (e) { //on add input button click
+            e.preventDefault();
+            if (x < max_fields) { //max input box allowed
+                x++; //text box increment
+                $(wrapper).append
+                    ('<div class="col-md-12 stops" style="padding: 10px;"><h4>Stop ' + x + ':</h4><div class="row"> <div class="col-md-1"><label for="stop_name">Name:</label></div><div class="col-md-2"><input type="text" class="form-control" name="stop_name" id="stop_name"></div><div class="col-md-1"><label for="stop_phone">Phone:</label></div><div class="col-md-2"><input type="text" class="form-control" name="stop_phone" id="stop_phone"></div><div class="col-md-1"><label for="stop_address">Address:</label></div><div class="col-md-4"><input type="text" class="form-control" name="stop_address" id="stop_address"></div><a href="#" class="remove_field"><i class="fa fa-times" aria-hidden="true"></i></a></div></div>');
+            }
+        });
+
+        $(wrapper).on("click", ".remove_field", function (e) { //user click on remove text
+            e.preventDefault(); $(this).parent().parent('div').remove(); x--;
+        })
+    });
+    $('#addBooking').bootstrapValidator({
+        fields: {
+            booking_type: {
+                validators: {
+                    notEmpty: {
+                        message: 'Booking type is required'
+                    }
+                }
+            },
+            id_user: {
+                validators: {
+                    notEmpty: {
+                        message: 'User is required'
+                    }
+                }
+            },
+            category: {
+                validators: {
+                    notEmpty: {
+                        message: 'Category is required'
+                    }
+                }
+            },
+            fare: {
+                validators: {
+                    notEmpty: {
+                        message: 'Category is required'
+                    }
+                }
+            },
+            origin_address: {
+                validators: {
+                    notEmpty: {
+                        message: 'Start location is required'
+                    }
+                }
+            },
+            origin_name: {
+                validators: {
+                    notEmpty: {
+                        message: 'Name is required'
+                    },
+                    stringLength: {
+                        min: 3,
+                        max: 50,
+                        message: 'It must be 3 to 50 characters long'
+                    }
+                }
+            },
+            origin_phone: {
+                validators: {
+                    regexp: {
+                        regexp: /(^([0-9]{10})$)/,
+                        message: 'Invalid phone No'
+                    }
+                }
+            },
+            destination_address: {
+                validators: {
+                    notEmpty: {
+                        message: 'Start location is required'
+                    }
+                }
+            },
+            destination_name: {
+                validators: {
+                    notEmpty: {
+                        message: 'Name is required'
+                    },
+                    stringLength: {
+                        min: 3,
+                        max: 50,
+                        message: 'It must be 3 to 50 characters long'
+                    }
+                }
+            },
+            destination_phone: {
+                validators: {
+                    regexp: {
+                        regexp: /(^([0-9]{10})$)/,
+                        message: 'Invalid phone No'
+                    }
+                }
+            },
+
+        }
+    }).on('error.field.bv', function (e, data) {
+        if (data.bv.getSubmitButton()) {
+            data.bv.disableSubmitButtons(true);
+        }
+    })
+        .on('success.field.bv', function (e, data) {
+            if (data.bv.getSubmitButton()) {
+                data.bv.disableSubmitButtons(false);
+            }
+        });
+</script>
+{% endblock %}>

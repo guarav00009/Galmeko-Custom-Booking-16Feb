@@ -1,0 +1,16 @@
+asgiref==3.2.3
+autopep8==1.5
+certifi==2019.11.28
+chardet==3.0.4
+Django==3.0.2
+django-adminlte3==0.1.2
+django-widget-tweaks==1.4.5
+idna==2.8
+mysqlclient==1.4.6
+Pillow==7.0.0
+pycodestyle==2.5.0
+python-dotenv==0.10.5
+pytz==2019.3
+requests==2.22.0
+sqlparse==0.3.0
+urllib3==1.25.8
