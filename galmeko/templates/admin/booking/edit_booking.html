@@ -60,7 +60,7 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjRK7OqmoYM-KJki3hji4vZo6SiMl_nWA&region=in&libraries=places&callback=initAutocomplete"
     async defer></script>
 <script src="{% static 'booking/js/booking.js' %}"></script>
-<form action="/admin/add_booking/" method="POST" id="addBooking">
+<form action="/admin/edit_booking/" method="POST" id="addBooking">
     {%csrf_token%}
     <input type="hidden" name="origin_geocode" id="origin_geocode" value="">
     <input type="hidden" name="destination_geocode" id="destination_geocode" value="">
@@ -127,7 +127,11 @@
                     <label for="trip">Round Trip:</label>
                 </div>
                 <div class="col-md-4">
-                    <input type="checkbox" id="trip" name="trip" value="{{data.data.round_trip}}">
+                    {% if data.data.round_trip %} 
+                    <input type="checkbox" id="trip" name="trip" value="1" checked>
+                    {%else%}
+                    <input type="checkbox" id="trip" name="trip" value="0" >
+                     {%endif%}
                 </div>
             </div>
         </div>
@@ -194,9 +198,9 @@
     <fieldset class="module aligned stops">
         <h2>Stop</h2>
         {% if data.stop %}
-
+        
         {% for stop in data.stop %}
-        <div class="col-md-12 stops" style="padding: 10px;">
+        <div class="col-md-12s" style="padding: 10px;">
             <div class="row">
                 <div class="col-md-1">
                     <label for="id_name">Name:</label>
@@ -222,7 +226,7 @@
         {%endfor%}
         {%endif%}
 
-        <div class="input_fields_wrap"></div>
+        <div class="input_fields_wrap"></div><br>
         <a href="javascript:void(0);" class="add-more btn btn-info bt-sm">Add More</a>
     </fieldset>
 
@@ -234,22 +238,12 @@
                     <label for="feature">Features:</label>
                 </div>
                 <div class="col-md-10">
-                    {% if data.features %}
-                      {% for feature in data.feature %}
-                          {% with ns.found=false %}
-                          {% for features in data.features %}
-                              {% if feature.id != features.feature_id %}
-                                  {% with ns.found=true %}
-                              {% endif %}
-                          {%endfor%}
-                      {% if ns.found == true %}
-                      <input type="checkbox" name="features" value={{feature.id}}  > {{feature.name}}</option>
-                      {% else %}
-                         <input type="checkbox" name="features" value={{feature.id}} checked> {{feature.name}}</option>
-                      {% endif %}
-                      {%endfor%}
-                    {%endif%}                    
-                  </div>
+                    {% if data.feature_list %}
+                    {% for featureList in data.feature_list %}
+                    <input type="checkbox" name="features" value={{featureList.id}}> {{featureList.name}}
+                    {%endfor%}
+                    {%endif%}
+                </div>
             </div>
 
         </div>
@@ -271,6 +265,10 @@
 </form>
 <script>
     $(document).ready(function () {
+        var if_stop = '{{ data.is_stop|safe }}'
+        if(if_stop > 0){
+            $('.stops').show();
+        }
         $("#trip").on('click', function () {
             if ($("#trip").val() == 0) {
                 $("#trip").val(1)
@@ -281,8 +279,12 @@
         var max_fields = 10; //maximum input boxes allowed
         var wrapper = $(".input_fields_wrap"); //Fields wrapper
         var add_button = $(".add-more"); //Add button ID
-
         var x = 1; //initlal text box count
+        if(if_stop){
+            x = 0;
+            x = eval(x+parseInt(if_stop));
+        }
+
         $(add_button).on("click", function (e) { //on add input button click
             e.preventDefault();
             if (x < max_fields) { //max input box allowed

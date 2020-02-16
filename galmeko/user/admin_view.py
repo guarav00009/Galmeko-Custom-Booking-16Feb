@@ -136,7 +136,7 @@ def add_booking(request):
             if booking['status'] == 200:
                 booking_id = booking['booking_id']
                 stopAndFeature = save_stop_feature(request,booking_id)
-                if (stopAndFeature['status'] == 200):
+                if (stopAndFeature == True):
                     messages.success(request, 'Booking Added successfully!')
                 else:
                    messages.success(request, 'Something Went Wrong!') 
@@ -158,30 +158,20 @@ def save_stop_feature(request,booking_id):
     stop_address = request.POST.getlist('stop_address')
     stop_len = min([len(stop_name), len(stop_phone), len(stop_address)])
     length = min([len(features)])
+    
     if length > 0:
         for i in range(0,length,1):
             feature = BookingFeature(booking_id= booking_id,feature_id= features[i]
             )
             feature.save()
-            if feature.id:
-                result['feature_status'] = 200
-            else:
-                result['feature_status'] = 400
-    if length > 0:
+            
+    if stop_name[0]!='' or stop_phone[0]!='' or stop_address[0]!='':
         for i in range(0,stop_len,1):
             stops = BookingStop(booking_id= booking_id,name= stop_name[i],phone= stop_phone[i],address= stop_address[i]
                 )
             stops.save()
-            if stops.id:
-                result['stops_status'] = 200
-            else:
-                result['stops_status'] = 400
-    if( result['stops_status'] == 200 and result['feature_status'] == 200):
-        result['status'] = 200
-        return result
-    else:
-        result['status'] = 200
-        return result
+
+    return True
 
 def save_booking(request):
     result = {}

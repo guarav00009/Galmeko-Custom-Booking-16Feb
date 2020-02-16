@@ -75,12 +75,16 @@ class BookingAdmin(admin.ModelAdmin):
         context_data['site_title'] = ugettext_lazy('Booking')
         booking = Booking.objects.filter(status=1).get(id=bookingId)
         bookingStop = list(BookingStop.objects.filter(booking_id = bookingId))
+        is_stop = 0
+        if len(bookingStop) > 0:
+            is_stop = len(bookingStop)
         bookingFeature = list(BookingFeature.objects.filter(booking_id = bookingId))
         context_data['data'] = {
             'category' : VehicleCategory.objects.filter(status=1),
-            'feature' : Features.objects.filter(status=1),
+            'feature_list' : Features.objects.filter(status=1),
             'stop' : bookingStop,
-            'features' : bookingFeature,
+            'is_stop' : is_stop,
+            'booking_feature' : bookingFeature,
             'data' : booking
         }
         return TemplateResponse(request, 'admin/booking/edit_booking.html', context=context_data)
